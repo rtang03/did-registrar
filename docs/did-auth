@@ -1,9 +1,12 @@
-<mxfile host="app.diagrams.net" modified="2021-04-04T12:45:14.756Z" agent="5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15" etag="yRQsDJOcStprlpVsN4Jk" version="14.5.7" type="github">
+<mxfile host="app.diagrams.net" modified="2021-04-04T12:55:17.813Z" agent="5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15" etag="Kv20a-9OYV-IeSANu1wH" version="14.5.7" type="github">
   <diagram id="kgpKYQtTHZ0yAKxKKP6v" name="Page-1">
     <mxGraphModel dx="1532" dy="730" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1654" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="wgqTIyOwgDRV4doOxhKg-79" value="alt: SubmissionFlow via VC" style="shape=umlFrame;whiteSpace=wrap;html=1;width=220;height=20;" vertex="1" parent="1">
+          <mxGeometry x="40" y="960" width="1110" height="370" as="geometry" />
+        </mxCell>
         <mxCell id="wgqTIyOwgDRV4doOxhKg-67" value="verify claim with vc and OPA data" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1" target="wgqTIyOwgDRV4doOxhKg-65">
           <mxGeometry width="80" relative="1" as="geometry">
             <mxPoint x="1090" y="1182" as="sourcePoint" />
@@ -91,7 +94,7 @@
             <mxPoint x="395" y="370" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="wgqTIyOwgDRV4doOxhKg-4" value=":Authn/Authz" style="shape=umlLifeline;perimeter=lifelinePerimeter;container=1;collapsible=0;recursiveResize=0;rounded=0;shadow=0;strokeWidth=1;" vertex="1" parent="1">
+        <mxCell id="wgqTIyOwgDRV4doOxhKg-4" value=":OIDC Provider" style="shape=umlLifeline;perimeter=lifelinePerimeter;container=1;collapsible=0;recursiveResize=0;rounded=0;shadow=0;strokeWidth=1;" vertex="1" parent="1">
           <mxGeometry x="655" y="80" width="100" height="1200" as="geometry" />
         </mxCell>
         <mxCell id="wgqTIyOwgDRV4doOxhKg-14" value="Generate vc &lt;br&gt;presentation &lt;br&gt;request" style="edgeStyle=orthogonalEdgeStyle;html=1;align=left;spacingLeft=2;endArrow=block;rounded=0;" edge="1" parent="wgqTIyOwgDRV4doOxhKg-4">
@@ -123,7 +126,7 @@
         <mxCell id="wgqTIyOwgDRV4doOxhKg-65" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;" vertex="1" parent="wgqTIyOwgDRV4doOxhKg-4">
           <mxGeometry x="45" y="1102" width="10" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="wgqTIyOwgDRV4doOxhKg-8" value=":Wallet" style="shape=umlLifeline;perimeter=lifelinePerimeter;container=1;collapsible=0;recursiveResize=0;rounded=0;shadow=0;strokeWidth=1;" vertex="1" parent="1">
+        <mxCell id="wgqTIyOwgDRV4doOxhKg-8" value=":IdentityWallet" style="shape=umlLifeline;perimeter=lifelinePerimeter;container=1;collapsible=0;recursiveResize=0;rounded=0;shadow=0;strokeWidth=1;" vertex="1" parent="1">
           <mxGeometry x="855" y="80" width="100" height="1200" as="geometry" />
         </mxCell>
         <mxCell id="wgqTIyOwgDRV4doOxhKg-22" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;" vertex="1" parent="wgqTIyOwgDRV4doOxhKg-8">
@@ -183,8 +186,8 @@
         <mxCell id="wgqTIyOwgDRV4doOxhKg-20" value="&lt;font style=&quot;font-size: 8px&quot;&gt;loop&lt;/font&gt;" style="shape=umlFrame;whiteSpace=wrap;html=1;width=60;height=15;" vertex="1" parent="1">
           <mxGeometry x="275" y="510" width="470" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="wgqTIyOwgDRV4doOxhKg-21" value="Authentication Flow / Tx Submission Flow" style="text;align=center;fontStyle=1;verticalAlign=middle;spacingLeft=3;spacingRight=3;strokeColor=none;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="1">
-          <mxGeometry x="50" y="20" width="220" height="30" as="geometry" />
+        <mxCell id="wgqTIyOwgDRV4doOxhKg-21" value="Authentication Flow (with Did-Auth) / Tx Submission Flow (with VC) " style="text;align=center;fontStyle=1;verticalAlign=middle;spacingLeft=3;spacingRight=3;strokeColor=none;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="1">
+          <mxGeometry x="50" y="20" width="420" height="30" as="geometry" />
         </mxCell>
         <mxCell id="wgqTIyOwgDRV4doOxhKg-26" value="request scanned (QR Code)" style="html=1;verticalAlign=bottom;endArrow=block;entryX=0.51;entryY=0.761;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1">
           <mxGeometry width="80" relative="1" as="geometry">
@@ -211,19 +214,19 @@
             <Array as="points" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="wgqTIyOwgDRV4doOxhKg-32" value="redirect request to RP redirect uri with auth code" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0.6;exitY=1.129;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="wgqTIyOwgDRV4doOxhKg-9">
+        <mxCell id="wgqTIyOwgDRV4doOxhKg-32" value="redirect request to RP redirect uri with auth-code" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0.6;exitY=1.129;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="wgqTIyOwgDRV4doOxhKg-9">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="395" y="780" as="sourcePoint" />
             <mxPoint x="305" y="805" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="wgqTIyOwgDRV4doOxhKg-33" value="follow redirect with code" style="html=1;verticalAlign=bottom;endArrow=block;exitX=0.9;exitY=0.96;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="wgqTIyOwgDRV4doOxhKg-47">
+        <mxCell id="wgqTIyOwgDRV4doOxhKg-33" value="follow redirect with auth-code" style="html=1;verticalAlign=bottom;endArrow=block;exitX=0.9;exitY=0.96;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="wgqTIyOwgDRV4doOxhKg-47">
           <mxGeometry width="80" relative="1" as="geometry">
             <mxPoint x="315" y="800" as="sourcePoint" />
             <mxPoint x="505" y="839" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="wgqTIyOwgDRV4doOxhKg-34" value="request token with code" style="html=1;verticalAlign=bottom;endArrow=block;exitX=0.52;exitY=0.862;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1">
+        <mxCell id="wgqTIyOwgDRV4doOxhKg-34" value="request token with auth-code" style="html=1;verticalAlign=bottom;endArrow=block;exitX=0.52;exitY=0.862;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1">
           <mxGeometry width="80" relative="1" as="geometry">
             <mxPoint x="507" y="849.9999999999999" as="sourcePoint" />
             <mxPoint x="704.5" y="849.9999999999999" as="targetPoint" />
@@ -266,7 +269,7 @@
             <mxPoint x="504.5" y="1043.04" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="wgqTIyOwgDRV4doOxhKg-61" value=":Gw-Org" style="shape=umlLifeline;perimeter=lifelinePerimeter;container=1;collapsible=0;recursiveResize=0;rounded=0;shadow=0;strokeWidth=1;" vertex="1" parent="1">
+        <mxCell id="wgqTIyOwgDRV4doOxhKg-61" value=":Gateway-Org" style="shape=umlLifeline;perimeter=lifelinePerimeter;container=1;collapsible=0;recursiveResize=0;rounded=0;shadow=0;strokeWidth=1;" vertex="1" parent="1">
           <mxGeometry x="1040" y="80" width="100" height="1200" as="geometry" />
         </mxCell>
         <mxCell id="wgqTIyOwgDRV4doOxhKg-73" value="send&lt;br&gt;tx to DLT" style="edgeStyle=orthogonalEdgeStyle;html=1;align=left;spacingLeft=2;endArrow=block;rounded=0;" edge="1" parent="wgqTIyOwgDRV4doOxhKg-61">
@@ -282,7 +285,7 @@
         <mxCell id="wgqTIyOwgDRV4doOxhKg-74" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;" vertex="1" parent="wgqTIyOwgDRV4doOxhKg-61">
           <mxGeometry x="45" y="1059" width="10" height="103" as="geometry" />
         </mxCell>
-        <mxCell id="wgqTIyOwgDRV4doOxhKg-66" value="dispatch command with vc" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
+        <mxCell id="wgqTIyOwgDRV4doOxhKg-66" value="(a) dispatch command with vc" style="html=1;verticalAlign=bottom;endArrow=block;" edge="1" parent="1">
           <mxGeometry width="80" relative="1" as="geometry">
             <mxPoint x="513" y="1142" as="sourcePoint" />
             <mxPoint x="1090" y="1142" as="targetPoint" />
@@ -318,8 +321,8 @@
             <mxPoint x="520" y="500" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="wgqTIyOwgDRV4doOxhKg-79" value="SubmissionFlow" style="shape=umlFrame;whiteSpace=wrap;html=1;width=120;height=30;" vertex="1" parent="1">
-          <mxGeometry x="40" y="960" width="1110" height="370" as="geometry" />
+        <mxCell id="wgqTIyOwgDRV4doOxhKg-80" value="alt: SubmissionFlow via token (TBC)" style="shape=umlFrame;whiteSpace=wrap;html=1;width=220;height=20;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1340" width="1110" height="40" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
