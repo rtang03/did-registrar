@@ -1,55 +1,49 @@
 require('dotenv').config();
 import http from 'http';
 import util from 'util';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import errorHandler from 'errorhandler';
 import express from 'express';
-import jwt from 'express-jwt';
-import helmet from 'helmet';
-import jwksRsa from 'jwks-rsa';
 import morgan from 'morgan';
 import next from 'next';
+import { default as NextAuth } from 'next-auth';
+import swaggerUi from 'swagger-ui-express';
+import yaml from 'yamljs';
+import { nextauthOptions } from './apiRoutes';
 
+const authUrl = '/api/auth/';
+const swaggerDocument = yaml.load('./swagger.yaml');
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 const port = parseInt(process.env.PORT || '3000', 10);
-const baseUrl = process.env.AUTH0_BASE_URL;
-const issuerBaseUrl = process.env.AUTH0_ISSUER_BASE_URL;
-const audience = process.env.AUTH0_AUDIENCE;
 
 app
   .prepare()
   .then(() => {
-    if (!baseUrl || !issuerBaseUrl)
-      throw new Error('Please make sure that the file .env.local is in place and populated');
-
-    // if (!audience)
-    //   throw new Error('AUTH0_AUDIENCE not set in .env.local. Shutting down API server.');
-
-    const checkJwt = jwt({
-      secret: jwksRsa.expressJwtSecret({
-        cache: true,
-        rateLimit: true,
-        jwksRequestsPerMinute: 5,
-        jwksUri: `${issuerBaseUrl}/.well-known/jwks.json`,
-      }),
-      audience: audience,
-      issuer: `${issuerBaseUrl}/`,
-      algorithms: ['RS256'],
-    });
-
     const server = express();
     server.use(express.json());
-    server.use(express.urlencoded({ extended: false }));
+    server.use(express.urlencoded({ extended: true }));
+    server.use(cookieParser());
     server.use(morgan('dev'));
     // todo: trouble this later
     // server.use(helmet());
-    server.use(cors({ origin: baseUrl }));
+    // server.use(cors({ origin: baseUrl }));
     server.use(errorHandler());
 
-    server.get('/api/shows', checkJwt, (req, res) => {
-      res.send({ msg: 'Your access token was successfully validated!' });
+    server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+    // NOTE: using next-auth in custom Express server
+    // @see https://github.com/nextauthjs/next-auth/issues/531
+    server.use((req, res, next) => {
+      if (!req.url.startsWith(authUrl)) return next();
+
+      req.query.nextauth = req.url // start with request url
+        .slice(authUrl.length) // make relative to baseUrl
+        .replace(/\?.*/, '') // remove query part, use only path part
+        .split('/'); // as array of strings
+      NextAuth(req as any, res as any, nextauthOptions);
     });
 
     server.get('*', (req, res) => handle(req, res));

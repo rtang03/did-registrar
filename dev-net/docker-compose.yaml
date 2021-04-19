@@ -1,0 +1,22 @@
+version: '2'
+
+networks:
+  devnet:
+
+services:
+  postgres01:
+    container_name: postgres01
+    image: postgres:9.6.17-alpine
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - ./volume/postgres01:/var/lib/postgresql/data
+      - ./scripts/createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+      - ./scripts/init-auth-db.sh:/docker-entrypoint-initdb.d/2-init-auth-db.sh
+    command: postgres
+    ports:
+      - 5432:5432
+    networks:
+      - devnet

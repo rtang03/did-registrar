@@ -1,17 +1,21 @@
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
+import IconButton from '@material-ui/core/IconButton';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import { signIn, signOut, useSession } from 'next-auth/client';
+import ListAltIcon from '@material-ui/icons/ListAlt';
 import Head from 'next/head';
 import Link from 'next/link';
-import React, { FC, Fragment } from 'react';
+import React from 'react';
 import { useStyles } from '../utils';
 
-const Layout: FC<{ title?: string }> = ({ children, title = 'No Title' }) => {
-  const [session, loading] = useSession();
+const Layout: React.FC<{
+  title?: string;
+  isLoading?: boolean;
+  user?: any;
+  error: any;
+}> = ({ children, title = 'No Title', isLoading, user, error }) => {
   const classes = useStyles();
 
   return (
@@ -47,62 +51,56 @@ const Layout: FC<{ title?: string }> = ({ children, title = 'No Title' }) => {
         <div className={classes.root}>
           <AppBar position="static">
             <Toolbar>
+              {' '}
+              <IconButton
+                edge="start"
+                className={classes.menuButton}
+                color="inherit"
+                aria-label="menu">
+                <ListAltIcon />
+              </IconButton>
               <div className={classes.root}>
-                <Button color="inherit">
-                  <Link href="/">
-                    <a>Home</a>
-                  </Link>
-                </Button>
-                {session ? (
+                {user ? (
                   <>
                     <Button color="inherit">
+                      <Link href="/">
+                        <a>Home</a>
+                      </Link>
+                    </Button>
+                    <Button color="inherit">
                       <Link href="/profile">
-                        <a>Profiile</a>
+                        <a>Profile</a>
                       </Link>
                     </Button>
                   </>
                 ) : (
-                  <Fragment />
+                  <Button color="inherit">
+                    <Link href="/">
+                      <a>Home</a>
+                    </Link>
+                  </Button>
                 )}
               </div>
-              {session ? (
+              {user ? (
                 <>
-                  {session?.user?.image && (
-                    <span
-                      style={{ backgroundImage: `url(${session.user.image})` }}
-                      className={classes.avatar}
-                    />
-                  )}
-                  <span>
-                    <small>Signed in as</small>
-                    <br />
-                    <Typography variant="caption" display="block">
-                      {session?.user?.email || session?.user?.name}
-                    </Typography>
-                  </span>
-
                   <Button color="inherit">
-                    <a
-                      href={`/api/auth/signout`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        return signOut();
-                      }}>
-                      Sign Out
-                    </a>
+                    <Link href="/api/auth/logout">
+                      <a>Log out</a>
+                    </Link>
                   </Button>
                 </>
               ) : (
                 <>
+                  {' '}
                   <Button color="inherit">
-                    <a
-                      href={`/api/auth/signin`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        return signIn();
-                      }}>
-                      Sign In
-                    </a>
+                    <Link href="/api/auth/login">
+                      <a>Sign up</a>
+                    </Link>
+                  </Button>
+                  <Button color="inherit">
+                    <Link href="/api/auth/login">
+                      <a>Sign In</a>
+                    </Link>
                   </Button>
                 </>
               )}
@@ -110,9 +108,9 @@ const Layout: FC<{ title?: string }> = ({ children, title = 'No Title' }) => {
           </AppBar>
         </div>
       </header>
-      {loading ? <LinearProgress /> : <Divider />}
+      {isLoading ? <LinearProgress /> : <Divider />}
       <br />
-      {children}
+      {error ? <div>{error.message}</div> : <>{children}</>}
     </div>
   );
 };
