@@ -38,6 +38,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "auth_db" <<-EOSQL
       email          VARCHAR(255),
       email_verified TIMESTAMPTZ,
       image          TEXT,
+      phone_num      VARCHAR(25),
       created_at     TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at     TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY (id)
@@ -52,6 +53,19 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "auth_db" <<-EOSQL
       created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY (id)
+    );
+
+  CREATE TABLE IF NOT EXISTS tenants
+    (
+      id SERIAL PRIMARY KEY,
+      slug VARCHAR(255) UNIQUE NOT NULL,
+      db_name VARCHAR(100) UNIQUE NOT NULL,
+      db_host VARCHAR(255),
+      db_username VARCHAR(100),
+      db_password TEXT,
+      db_port INTEGER NOT NULL DEFAULT 5432,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
     );
 
   CREATE UNIQUE INDEX compound_id

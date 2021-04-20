@@ -2,15 +2,18 @@ require('dotenv').config();
 import http from 'http';
 import util from 'util';
 import cookieParser from 'cookie-parser';
-import cors from 'cors';
+// import cors from 'cors';
 import errorHandler from 'errorhandler';
 import express from 'express';
 import morgan from 'morgan';
 import next from 'next';
 import { default as NextAuth } from 'next-auth';
 import swaggerUi from 'swagger-ui-express';
+import { createConnection } from 'typeorm';
 import yaml from 'yamljs';
+import { TypeOrmUserSchema, User, TypoOrmAccountSchema, Account } from '../models';
 import { nextauthOptions } from './apiRoutes';
+import { createUserRoute } from './apiRoutes/createUserRoute';
 
 const authUrl = '/api/auth/';
 const swaggerDocument = yaml.load('./swagger.yaml');
@@ -21,7 +24,25 @@ const port = parseInt(process.env.PORT || '3000', 10);
 
 app
   .prepare()
-  .then(() => {
+  .then(async () => {
+    const connectionOptions = {
+      name: 'default',
+      type: 'postgres' as any,
+      host: process.env.DATABASE_HOST || 'localhost',
+      port: 5432,
+      username: process.env.DATABASE_USER,
+      password: process.env.DATABASE_PASSWORD,
+      database: process.env.DATABASE_NAME,
+      logging: process.env.TYPEORM_LOGGING === 'true',
+      synchronize: false,
+      dropSchema: false,
+      entities: [TypeOrmUserSchema, TypoOrmAccountSchema],
+      connectTimeoutMS: 10000,
+    };
+    const connection = await createConnection(connectionOptions);
+    const userRepository = connection.getRepository<User>('User');
+    const accountRepository = connection.getRepository<Account>('Account');
+
     const server = express();
     server.use(express.json());
     server.use(express.urlencoded({ extended: true }));
@@ -33,6 +54,8 @@ app
     server.use(errorHandler());
 
     server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+    server.use('/api/protected', createUserRoute(userRepository, accountRepository));
 
     // NOTE: using next-auth in custom Express server
     // @see https://github.com/nextauthjs/next-auth/issues/531

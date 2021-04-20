@@ -50,3 +50,5 @@ id_token
 
 https://ec.europa.eu/cefdigital/wiki/display/CEFDIGITALEBSI/Verifiable+Credential+API
 https://arxiv.org/pdf/2006.07521.pdf
+https://github.com/romitamgai/multitenant-application-example
+https://blog.lftechnology.com/designing-a-secure-and-scalable-multi-tenant-application-on-node-js-15ae13dda778

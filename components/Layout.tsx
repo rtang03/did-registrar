@@ -1,7 +1,14 @@
 import AppBar from '@material-ui/core/AppBar';
+import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Divider from '@material-ui/core/Divider';
+import Grow from '@material-ui/core/Grow';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import MenuItem from '@material-ui/core/MenuItem';
+import MenuList from '@material-ui/core/MenuList';
+import Paper from '@material-ui/core/Paper';
+import Popper from '@material-ui/core/Popper';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { signIn, signOut, useSession } from 'next-auth/client';
@@ -13,6 +20,25 @@ import { useStyles } from '../utils';
 const Layout: FC<{ title?: string }> = ({ children, title = 'No Title' }) => {
   const [session, loading] = useSession();
   const classes = useStyles();
+
+  // Popup menu @see https://material-ui.com/components/menus/
+  const [open, setOpen] = React.useState(false);
+  const anchorRef = React.useRef<HTMLButtonElement>(null);
+  const handleToggle = () => setOpen((prevOpen) => !prevOpen);
+  const handleClose = ({ target }: React.MouseEvent<EventTarget>) =>
+    !anchorRef?.current?.contains(target as HTMLElement) && setOpen(false);
+  const handleListKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      setOpen(false);
+    }
+  };
+  const prevOpen = React.useRef(open);
+  React.useEffect(() => {
+    prevOpen.current && !open && anchorRef.current?.focus();
+    prevOpen.current = open;
+  }, [open]);
+  // end of menu
 
   return (
     <div>
@@ -73,24 +99,64 @@ const Layout: FC<{ title?: string }> = ({ children, title = 'No Title' }) => {
                       className={classes.avatar}
                     />
                   )}
-                  <span>
-                    <small>Signed in as</small>
-                    <br />
-                    <Typography variant="caption" display="block">
-                      {session?.user?.email || session?.user?.name}
-                    </Typography>
-                  </span>
-
-                  <Button color="inherit">
-                    <a
-                      href={`/api/auth/signout`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        return signOut();
-                      }}>
-                      Sign Out
-                    </a>
+                  <Button
+                    color="inherit"
+                    ref={anchorRef}
+                    aria-controls={open ? 'menu-list-grow' : undefined}
+                    aria-haspopup="true"
+                    onClick={handleToggle}>
+                    {session?.user?.image ? (
+                      <Avatar
+                        alt={session?.user?.name || 'Anonymous'}
+                        src="{session?.user?.image}"
+                      />
+                    ) : (
+                      <Typography variant="caption">{session?.user?.name}</Typography>
+                    )}
                   </Button>
+                  <Popper
+                    open={open}
+                    anchorEl={anchorRef.current}
+                    role={undefined}
+                    transition
+                    disablePortal>
+                    {({ TransitionProps, placement }) => (
+                      <Grow
+                        {...TransitionProps}
+                        style={{
+                          transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom',
+                        }}>
+                        <Paper>
+                          <ClickAwayListener onClickAway={handleClose}>
+                            <MenuList
+                              autoFocusItem={open}
+                              id="menu-list-grow"
+                              onKeyDown={handleListKeyDown}>
+                              <MenuItem onClick={handleClose}>
+                                <span>
+                                  {session?.user?.name || 'Anonymous'}
+                                  <br />
+                                  <Typography variant="caption">{session?.user?.email}</Typography>
+                                </span>
+                              </MenuItem>
+                              <MenuItem onClick={handleClose}>Account Settings</MenuItem>
+                              <Divider />
+                              <MenuItem onClick={handleClose}>
+                                <a
+                                  href={`/api/auth/signout`}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    return signOut();
+                                  }}>
+                                  Sign Out
+                                </a>
+                              </MenuItem>
+                            </MenuList>
+                          </ClickAwayListener>
+                        </Paper>
+                      </Grow>
+                    )}
+                  </Popper>
                 </>
               ) : (
                 <>
