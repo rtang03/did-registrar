@@ -1,15 +1,16 @@
 import type { NextPage, NextPageContext } from 'next';
 import { useSession, getSession } from 'next-auth/client';
 import React, { Fragment, useState, useEffect } from 'react';
+import AccessDenied from '../components/AccessDenied';
 import Layout from '../components/Layout';
-import AccessDenied from '../components/accessDenied';
 
+// client sider rendering
 const Page: NextPage<any> = () => {
   const [session, loading] = useSession();
   const [content, setContent] = useState();
 
   useEffect(() => {
-    fetch('api/userinfo')
+    fetch('api/protected/userinfo')
       .then((res) => res.json())
       .then((json) => json?.content && setContent(json.content));
   }, [session]);
@@ -26,22 +27,9 @@ const Page: NextPage<any> = () => {
 
   return (
     <Layout title="Profile">
-      {loading ? (
-        <Fragment />
-      ) : (
-        <>
-          <p>I am {session?.user?.name}</p>
-          <p>{content}</p>
-        </>
-      )}
+      {loading ? <Fragment /> : <pre>{JSON.stringify(content, null, 2)}</pre>}
     </Layout>
   );
 };
-
-export const getServerSideProps = async (context: NextPageContext) => ({
-  props: {
-    session: await getSession(context),
-  },
-});
 
 export default Page;

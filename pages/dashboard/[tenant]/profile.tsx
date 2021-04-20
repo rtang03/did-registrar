@@ -1,9 +1,12 @@
 import type { NextPage, NextPageContext } from 'next';
 import { useSession, getSession } from 'next-auth/client';
 import React, { Fragment, useState, useEffect } from 'react';
+import AccessDenied from '../../../components/AccessDenied';
 import Layout from '../../../components/Layout';
-import AccessDenied from '../../../components/accessDenied';
 import type { UserInfo } from '../../../types';
+
+// This one is incorrect
+// use both server side and client rendering.
 
 const Page: NextPage<any> = () => {
   const [session, loading] = useSession();
