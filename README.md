@@ -13,7 +13,6 @@ psql -U postgres
 
 ```
 
-
 Session {
 user: {
 nickname: 'tangross',
