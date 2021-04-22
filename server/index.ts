@@ -1,3 +1,5 @@
+import { createDidRepository } from '../utils';
+
 require('dotenv').config();
 import http from 'http';
 import util from 'util';
@@ -12,7 +14,12 @@ import swaggerUi from 'swagger-ui-express';
 import { createConnection } from 'typeorm';
 import yaml from 'yamljs';
 import { TypeOrmUserSchema, User, TypoOrmAccountSchema, Account } from '../models';
-import { nextauthOptions } from './apiRoutes';
+import {
+  createApplicationRoute,
+  createDidRoute,
+  createTenantRoute,
+  nextauthOptions,
+} from './apiRoutes';
 import { createUserRoute } from './apiRoutes/createUserRoute';
 
 const authUrl = '/api/auth/';
@@ -56,6 +63,14 @@ app
     server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
     server.use('/api/protected', createUserRoute(userRepository, accountRepository));
+
+    const didRepo = createDidRepository({});
+
+    server.use('/api/dids', createDidRoute(didRepo));
+
+    server.use('/api/apps', createApplicationRoute());
+
+    server.use('/api/tenants', createTenantRoute());
 
     // NOTE: using next-auth in custom Express server
     // @see https://github.com/nextauthjs/next-auth/issues/531

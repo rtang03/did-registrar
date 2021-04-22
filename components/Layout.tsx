@@ -6,7 +6,6 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import Grow from '@material-ui/core/Grow';
-import IconButton from '@material-ui/core/IconButton';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -18,13 +17,12 @@ import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import MailIcon from '@material-ui/icons/Mail';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
 import { signIn, signOut, useSession } from 'next-auth/client';
 import Head from 'next/head';
 import Link from 'next/link';
 import React, { FC, useEffect, MouseEvent, useState, useRef, KeyboardEvent } from 'react';
 import { useStyles } from '../utils';
+import { sideBar } from './sidebar';
 
 const Layout: FC<{ title?: string }> = ({ children, title = 'No Title' }) => {
   const [session, loading] = useSession();
@@ -68,6 +66,12 @@ const Layout: FC<{ title?: string }> = ({ children, title = 'No Title' }) => {
       <Head>
         <title>{title}</title>
       </Head>
+      <style jsx global>{`
+        a {
+          color: inherit;
+          text-decoration: none;
+        }
+      `}</style>
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
@@ -221,21 +225,15 @@ const Layout: FC<{ title?: string }> = ({ children, title = 'No Title' }) => {
         <div className={classes.toolbar} />
         <Divider />
         <List>
-          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
+          {sideBar.map(({ text, icon, link }, index) => (
+            <Link href={link} key={text}>
+              <ListItem button>
+                <ListItemIcon>{icon}</ListItemIcon>
+                <ListItemText secondary={text} />
+              </ListItem>
+            </Link>
           ))}
-        </List>
-        <Divider />
-        <List>
-          {['All mail', 'Trash', 'Spam'].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          ))}
+          <Divider />
         </List>
       </Drawer>
       {loading ? <LinearProgress /> : <Divider />}

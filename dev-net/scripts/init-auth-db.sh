@@ -57,7 +57,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "auth_db" <<-EOSQL
 
   CREATE TABLE IF NOT EXISTS tenants
     (
-      id SERIAL PRIMARY KEY,
+      id SERIAL,
       slug VARCHAR(255) UNIQUE NOT NULL,
       db_name VARCHAR(100) UNIQUE NOT NULL,
       db_host VARCHAR(255),
@@ -66,6 +66,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "auth_db" <<-EOSQL
       db_port INTEGER NOT NULL DEFAULT 5432,
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW()
+      PRIMARY KEY (id)
     );
 
   CREATE UNIQUE INDEX compound_id
