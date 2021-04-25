@@ -1,4 +1,5 @@
-import type { DIDDocument, VerificationMethod, ServiceEndpoint } from 'did-resolver';
+import type { VerificationMethod, ServiceEndpoint } from 'did-resolver';
+import type { DidDocument } from '../types';
 import { addressToDid } from './createKeyPair';
 
 // @see https://w3c-ccg.github.io/ld-proofs/
@@ -13,6 +14,7 @@ export type LinkedDataProof = {
 };
 
 type CreateDidOption = {
+  description?: string;
   context?: 'https://w3id.org/did/v1' | string | string[];
   id: string;
   controller?: string;
@@ -24,7 +26,7 @@ type CreateDidOption = {
   keyAgreement?: (string | VerificationMethod)[];
 };
 
-export const createDidDocument: (option: CreateDidOption) => DIDDocument = ({
+export const createDidDocument: (option: CreateDidOption) => DidDocument = ({
   context,
   id,
   controller,
@@ -34,6 +36,7 @@ export const createDidDocument: (option: CreateDidOption) => DIDDocument = ({
   updated,
   proof,
   keyAgreement,
+  description,
 }) => {
   context = context
     ? Array.isArray(context)
@@ -65,6 +68,7 @@ export const createDidDocument: (option: CreateDidOption) => DIDDocument = ({
   ];
 
   return {
+    description,
     '@context': context,
     id: identity,
     controller: controller || identity,

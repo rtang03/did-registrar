@@ -1,5 +1,3 @@
-import { createDidRepository } from '../utils';
-
 require('dotenv').config();
 import http from 'http';
 import util from 'util';
@@ -14,6 +12,7 @@ import swaggerUi from 'swagger-ui-express';
 import { createConnection } from 'typeorm';
 import yaml from 'yamljs';
 import { TypeOrmUserSchema, User, TypoOrmAccountSchema, Account } from '../models';
+import { createDidRepository } from '../utils';
 import {
   createApplicationRoute,
   createDidRoute,

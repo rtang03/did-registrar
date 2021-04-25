@@ -1,3 +1,4 @@
+import util from 'util';
 import { createStyles } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
@@ -8,16 +9,20 @@ import InputLabel from '@material-ui/core/InputLabel';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import Visibility from '@material-ui/icons/Visibility';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
+import FileCopyOutlineIcon from '@material-ui/icons/FileCopyOutlined';
 import AccessDenied from 'components/AccessDenied';
 import Layout from 'components/Layout';
+import { Form, Formik } from 'formik';
+import { Field } from 'formik';
+import { TextField } from 'formik-material-ui';
 import pick from 'lodash/pick';
 import type { NextPage, NextPageContext } from 'next';
 import { Session } from 'next-auth';
 import { getSession } from 'next-auth/client';
 import Link from 'next/link';
 import React, { useState } from 'react';
+import * as yup from 'yup';
 import { createKeyPair } from '../../../../utils';
 
 interface State {
@@ -27,7 +32,8 @@ interface State {
   privateKey: string;
   didDocument: any;
   saveMode: boolean;
-  showPrivateKey: boolean;
+  copyPrivateKey: boolean;
+  result: any;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -36,14 +42,19 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       flexWrap: 'wrap',
     },
-    margin: {
-      margin: theme.spacing(1),
+    textField: { width: '85ch' },
+    form: {
+      width: '100%', // Fix IE 11 issue.
+      marginTop: theme.spacing(1),
     },
-    textField: {
-      width: '85ch',
+    submit: {
+      margin: theme.spacing(3, 0, 2),
     },
   })
 );
+
+// field validation
+const validation = yup.object({ description: yup.string().required().min(5) });
 
 const Page: NextPage<{ session: Session }> = ({ session }) => {
   const classes = useStyles();
@@ -54,19 +65,16 @@ const Page: NextPage<{ session: Session }> = ({ session }) => {
     privateKey: '',
     didDocument: null,
     saveMode: false,
-    showPrivateKey: false,
+    copyPrivateKey: false,
+    result: null,
   });
 
   const handleKeyGen = () => setValues({ ...values, ...createKeyPair(), saveMode: false });
-
-  const handleSubmit = () => {
-    setValues({ ...values, saveMode: true });
-    console.log('SAVE');
+  const handleVerify = () => setValues({ ...values, saveMode: true });
+  const handleClickCopyPrivKey = () => {
+    setValues({ ...values, copyPrivateKey: !values.copyPrivateKey });
+    return navigator.clipboard.writeText(values.privateKey);
   };
-
-  const handleClickShowPrivKey = () =>
-    setValues({ ...values, showPrivateKey: !values.showPrivateKey });
-
   const handleMouseDownPrivKey = (event: React.MouseEvent<HTMLButtonElement>) =>
     event.preventDefault();
 
@@ -86,14 +94,14 @@ const Page: NextPage<{ session: Session }> = ({ session }) => {
             Private key is generated at the client; will not be sent to server.
           </Typography>
           <br />
-          <br />
-          <Button size="small" variant="contained">
+          {/* Button Group */}
+          <Button disabled={values?.result} size="small" variant="contained">
             <a onClick={handleKeyGen}>
               {values.saveMode ? <>⌘ Re-generate It</> : <>⌘ Generate Keys</>}
             </a>
           </Button>{' '}
           <Button disabled={!values.did} size="small" variant="contained">
-            <a onClick={handleSubmit}>⇲ Verify Did Document</a>
+            <a onClick={handleVerify}>⇲ Verify Did Document</a>
           </Button>
           <Divider />
           {!values.saveMode ? (
@@ -111,21 +119,22 @@ const Page: NextPage<{ session: Session }> = ({ session }) => {
           ) : (
             <div>
               <br />
+              {/* Private Key Box */}
               <FormControl className={classes.textField} variant="outlined">
                 <InputLabel htmlFor="outlined-adornment-password">Private Key</InputLabel>
                 <OutlinedInput
                   readOnly
                   id="outlined-adornment-password"
-                  type={values.showPrivateKey ? 'text' : 'password'}
+                  type="text"
                   value={values.privateKey}
-                  endAdornment={
+                  startAdornment={
                     <InputAdornment position="end">
                       <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={handleClickShowPrivKey}
+                        aria-label="toggle copying private key"
+                        onClick={handleClickCopyPrivKey}
                         onMouseDown={handleMouseDownPrivKey}
-                        edge="end">
-                        {values.showPrivateKey ? <Visibility /> : <VisibilityOff />}
+                        edge="start">
+                        {values.copyPrivateKey ? <FileCopyIcon /> : <FileCopyOutlineIcon />}
                       </IconButton>
                     </InputAdornment>
                   }
@@ -134,13 +143,116 @@ const Page: NextPage<{ session: Session }> = ({ session }) => {
               </FormControl>
               <p>
                 <Typography variant="caption" color="secondary">
-                  👆 Make sure you copy and save it, before proceeding. It will NOT show it again.
+                  ⚠️ 👆 Click to copy and save it. It will NOT show it again, after leaving this
+                  page
                 </Typography>
               </p>
-              <br />
-              <br />
-              <Typography variant="h6">DID Document</Typography>
-              <pre>{JSON.stringify(values.didDocument, null, 2)}</pre>
+              {/* Formik Submit */}
+              <Formik
+                initialValues={{ description: '' }}
+                validateOnChange={true}
+                validationSchema={validation}
+                onSubmit={async ({ description }, { setSubmitting, setStatus, submitForm }) => {
+                  setSubmitting(true);
+                  try {
+                    const response = await fetch('/api/dids', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        description,
+                        id: values.did,
+                        controllerKey: values.publicKey,
+                      }),
+                    });
+                    if (response.status === 200) {
+                      const result = await response.json();
+                      result.status = 'OK';
+                      setValues({ ...values, result });
+                    } else
+                      setValues({
+                        ...values,
+                        result: {
+                          status: 'ERROR',
+                          error: await response.text(),
+                        },
+                      });
+                  } catch (e) {
+                    console.error(e);
+                    setValues({
+                      ...values,
+                      result: {
+                        status: 'ERROR',
+                        error: util.format('unknown error: %j', e),
+                      },
+                    });
+                  }
+                }}>
+                {({ values: _values, isSubmitting, errors }) => (
+                  <Form>
+                    <Field
+                      disabled={values?.result}
+                      className={classes.textField}
+                      label="Description"
+                      size="small"
+                      component={TextField}
+                      name={'description'}
+                      placeholder={'Add an easy to remember one-liner'}
+                      variant="outlined"
+                      margin="normal"
+                      fullwidth
+                      autoFocus={values.saveMode}
+                    />
+                    <p>
+                      <Button
+                        className={classes.submit}
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        disabled={
+                          isSubmitting ||
+                          !!errors?.description ||
+                          !_values?.description ||
+                          values?.result
+                        }
+                        type="submit">
+                        Submit
+                      </Button>
+                    </p>
+                  </Form>
+                )}
+              </Formik>
+              <Divider />
+              {/* Did Document Preview */}
+              {values?.result ? (
+                <>
+                  <p>
+                    <Link href="/dashboard/1/identities">
+                      <Button variant="outlined" color="secondary">
+                        <a>
+                          <Typography variant="caption">
+                            {values?.result?.status === 'OK'
+                              ? 'Remember to save the private key before leaving'
+                              : 'Something bad happen; try again'}
+                          </Typography>
+                        </a>
+                      </Button>
+                    </Link>
+                  </p>
+                  {values?.result?.status === 'OK' ? (
+                    <pre>{JSON.stringify(pick(values, 'did', 'privateKey'), null, 2)}</pre>
+                  ) : (
+                    <div />
+                  )}
+                  <Divider />
+                  <Typography variant="caption">Status</Typography>
+                  <pre>{JSON.stringify(values?.result, null, 2)}</pre>
+                </>
+              ) : (
+                <>
+                  <Typography variant="h6">Preview DID Document</Typography>
+                  <pre>{JSON.stringify(values.didDocument, null, 2)}</pre>
+                </>
+              )}
             </div>
           )}
           <Divider />

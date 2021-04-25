@@ -1,22 +1,32 @@
-import type { DIDDocument } from 'did-resolver';
-import type { Repository } from '../types';
+import type { DidDocument, Repository } from '../types';
 import { createDidDocument } from './createDidDocument';
-import { addressToDid, createKeyPair } from './createKeyPair';
 
 export const createDidRepository: (
-  mockDb: Record<string, DIDDocument>
-) => Repository<DIDDocument> = (mockDb) => {
+  mockDb: Record<string, DidDocument>
+) => Repository<DidDocument> = (mockDb) => {
   return {
-    create: async () => {
-      const { address, privateKey, publicKey } = createKeyPair();
-      const did = addressToDid(address);
-      const didDocument = await createDidDocument({ id: did, controllerKey: publicKey });
-      mockDb[did] = didDocument;
-      console.log(didDocument);
+    create: async ({ id, publicKey, description }) => {
+      const didDocument = await createDidDocument({
+        id,
+        controllerKey: publicKey,
+        description,
+      });
+      mockDb[id] = didDocument;
       return didDocument;
     },
     getById: async (id) => {
-      return mockDb[id];
+      return { status: 'OK', data: { id: '123', description: 'hello' } };
+    },
+    getAll: async () => {
+      return {
+        status: 'OK',
+        data: {
+          total: 1,
+          items: [{ id: '123', description: 'hello' }],
+          hasMore: false,
+          cursor: 1,
+        },
+      };
     },
   };
 };

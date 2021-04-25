@@ -24,41 +24,43 @@ import React, { FC, useEffect, MouseEvent, useState, useRef, KeyboardEvent } fro
 import { useStyles } from '../utils';
 import { sideBar } from './sidebar';
 
+interface State {
+  openAccount: boolean;
+  openTenant: boolean;
+}
+
 const Layout: FC<{ title?: string }> = ({ children, title = 'No Title' }) => {
   const [session, loading] = useSession();
   const classes = useStyles();
+  const [val, setVal] = useState<State>({ openAccount: false, openTenant: false });
+  const handleToggle = (state: keyof State) => () => setVal({ ...val, [state]: !val[state] });
+  const handleListKeyDown = (state: keyof State) => (event: KeyboardEvent) =>
+    event.key === 'Tab' && event.preventDefault() && setVal({ ...val, [state]: false });
 
   // @see https://material-ui.com/components/drawers/
-
   // @see https://material-ui.com/components/menus/
   // POPUP MENU for TENANT
-  const [openTenant, setOpenTenant] = useState(false);
   const anchorRefTenant = useRef<HTMLButtonElement>(null);
-  const handleToggleTenant = () => setOpenTenant((prevOpen) => !prevOpen);
   const handleCloseTenant = ({ target }: MouseEvent<EventTarget>) =>
-    !anchorRefTenant?.current?.contains(target as HTMLElement) && setOpenTenant(false);
-  const handleListKeyDownTenant = (event: KeyboardEvent) =>
-    event.key === 'Tab' && event.preventDefault() && setOpenTenant(false);
-  const prevOpenTenant = useRef(openTenant);
+    !anchorRefTenant?.current?.contains(target as HTMLElement) &&
+    setVal({ ...val, openTenant: false });
+  const prevOpenTenant = useRef(val.openTenant);
   useEffect(() => {
-    prevOpenTenant.current && !openTenant && anchorRefTenant.current?.focus();
-    prevOpenTenant.current = openTenant;
-  }, [openTenant]);
+    prevOpenTenant.current && !val.openTenant && anchorRefTenant.current?.focus();
+    prevOpenTenant.current = val.openTenant;
+  }, [val.openTenant]);
   // END OF TENTANT
 
   // POPUP MENU for ACCOUNT
-  const [openAccount, setOpenAccount] = useState(false);
   const anchorRefAccount = useRef<HTMLButtonElement>(null);
-  const handleToggleAccount = () => setOpenAccount((prevOpen) => !prevOpen);
   const handleCloseAccount = ({ target }: MouseEvent<EventTarget>) =>
-    !anchorRefAccount?.current?.contains(target as HTMLElement) && setOpenAccount(false);
-  const handleListKeyDownAccount = (event: KeyboardEvent) =>
-    event.key === 'Tab' && event.preventDefault() && setOpenAccount(false);
-  const prevOpenAccount = useRef(openAccount);
+    !anchorRefAccount?.current?.contains(target as HTMLElement) &&
+    setVal({ ...val, openAccount: false });
+  const prevOpenAccount = useRef(val.openAccount);
   useEffect(() => {
-    prevOpenAccount.current && !openAccount && anchorRefAccount.current?.focus();
-    prevOpenAccount.current = openAccount;
-  }, [openAccount]);
+    prevOpenAccount.current && !val.openAccount && anchorRefAccount.current?.focus();
+    prevOpenAccount.current = val.openAccount;
+  }, [val.openAccount]);
   // END OF ACCOUNT
 
   return (
@@ -90,13 +92,13 @@ const Layout: FC<{ title?: string }> = ({ children, title = 'No Title' }) => {
               <Button
                 color="inherit"
                 ref={anchorRefTenant}
-                aria-controls={openTenant ? 'menu-list-grow' : undefined}
+                aria-controls={val.openTenant ? 'menu-list-grow' : undefined}
                 aria-haspopup="true"
-                onClick={handleToggleTenant}>
+                onClick={handleToggle('openTenant')}>
                 <a>My Tenant</a>
               </Button>
               <Popper
-                open={openTenant}
+                open={val.openTenant}
                 anchorEl={anchorRefTenant.current}
                 role={undefined}
                 transition
@@ -110,9 +112,9 @@ const Layout: FC<{ title?: string }> = ({ children, title = 'No Title' }) => {
                     <Paper>
                       <ClickAwayListener onClickAway={handleCloseTenant}>
                         <MenuList
-                          autoFocusItem={openTenant}
+                          autoFocusItem={val.openTenant}
                           id="menu-list-grow"
-                          onKeyDown={handleListKeyDownTenant}>
+                          onKeyDown={handleListKeyDown('openTenant')}>
                           <MenuItem onClick={handleCloseTenant}>
                             <span>Tenant 1</span>
                           </MenuItem>
@@ -144,9 +146,9 @@ const Layout: FC<{ title?: string }> = ({ children, title = 'No Title' }) => {
               <Button
                 color="inherit"
                 ref={anchorRefAccount}
-                aria-controls={openAccount ? 'menu-list-grow' : undefined}
+                aria-controls={val.openAccount ? 'menu-list-grow' : undefined}
                 aria-haspopup="true"
-                onClick={handleToggleAccount}>
+                onClick={handleToggle('openAccount')}>
                 {session?.user?.image ? (
                   <Avatar alt={session?.user?.name || 'Anonymous'} src={session?.user?.image} />
                 ) : (
@@ -154,7 +156,7 @@ const Layout: FC<{ title?: string }> = ({ children, title = 'No Title' }) => {
                 )}
               </Button>
               <Popper
-                open={openAccount}
+                open={val.openAccount}
                 anchorEl={anchorRefAccount.current}
                 role={undefined}
                 transition
@@ -168,9 +170,9 @@ const Layout: FC<{ title?: string }> = ({ children, title = 'No Title' }) => {
                     <Paper>
                       <ClickAwayListener onClickAway={handleCloseAccount}>
                         <MenuList
-                          autoFocusItem={openAccount}
+                          autoFocusItem={val.openAccount}
                           id="menu-list-grow"
-                          onKeyDown={handleListKeyDownAccount}>
+                          onKeyDown={handleListKeyDown('openAccount')}>
                           <MenuItem onClick={handleCloseAccount}>
                             <span>
                               {session?.user?.name || 'Anonymous'}
@@ -226,7 +228,7 @@ const Layout: FC<{ title?: string }> = ({ children, title = 'No Title' }) => {
         <Divider />
         <List>
           {sideBar.map(({ text, icon, link }, index) => (
-            <Link href={link} key={text}>
+            <Link href={link} key={index}>
               <ListItem button>
                 <ListItemIcon>{icon}</ListItemIcon>
                 <ListItemText secondary={text} />
